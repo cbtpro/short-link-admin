@@ -71,7 +71,8 @@ async function handleSubmit() {
   const { valid } = await formApi.validate();
   const values = await formApi.getValues();
   if (valid) {
-    emit('submit', values as { password: string; username: string });
+    formApi.resetForm();
+    emit('submit', values as { password: string; username: string; });
   }
 }
 
@@ -98,15 +99,9 @@ defineExpose({
     </Title>
     <Form />
 
-    <VbenButton
-      :class="{
-        'cursor-wait': loading,
-      }"
-      :loading="loading"
-      aria-label="register"
-      class="mt-2 w-full"
-      @click="handleSubmit"
-    >
+    <VbenButton :class="{
+      'cursor-wait': loading,
+    }" :loading="loading" aria-label="register" class="mt-2 w-full" @click="handleSubmit">
       <slot name="submitButtonText">
         {{ submitButtonText || $t('authentication.signUp') }}
       </slot>

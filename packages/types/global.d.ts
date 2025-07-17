@@ -4,15 +4,20 @@ import 'vue-router';
 
 declare module 'vue-router' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface RouteMeta extends IRouteMeta {}
+  interface RouteMeta extends IRouteMeta { }
 }
 
 export interface VbenAdminProAppConfigRaw {
   VITE_GLOB_API_URL: string;
+  /**
+   * 接口请求解密密钥
+   */
+  VITE_GLOB_SECRET_KEY: string;
 }
 
 export interface ApplicationConfig {
   apiURL: string;
+  secretKey: string;
 }
 
 declare global {

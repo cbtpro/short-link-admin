@@ -15,9 +15,13 @@ export function useAppConfig(
     ? window._VBEN_ADMIN_PRO_APP_CONF_
     : (env as VbenAdminProAppConfigRaw);
 
-  const { VITE_GLOB_API_URL } = config;
+  const { VITE_GLOB_API_URL, VITE_GLOB_SECRET_KEY } = config;
 
   return {
     apiURL: VITE_GLOB_API_URL,
+    /**
+     * 接口加密解密密钥
+     */
+    secretKey: VITE_GLOB_SECRET_KEY
   };
 }

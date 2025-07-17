@@ -1,6 +1,24 @@
 import { baseRequestClient, requestClient } from '#/api/request';
 
 export namespace AuthApi {
+  /**
+   * 注册用户接口参数
+   */
+  export interface RegisterParams {
+    agreePolicy: boolean;
+    username: string;
+    password: string;
+    confirmPassword: string;
+    captcha: boolean;
+  }
+  /**
+   * 注册接口返回值
+   */
+  export interface RegisterResult {
+    success: boolean;
+    message: string;
+    data: {};
+  }
   /** 登录接口参数 */
   export interface LoginParams {
     password?: string;
@@ -16,6 +34,13 @@ export namespace AuthApi {
     data: string;
     status: number;
   }
+}
+
+/**
+ * 注册新用户
+ */
+export async function registerApi(data: AuthApi.RegisterParams) {
+  return requestClient.post<AuthApi.RegisterResult>('/auth/register', data);
 }
 
 /**

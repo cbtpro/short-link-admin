@@ -25,6 +25,7 @@
   "privacyPolicy": "Privacy-policy",
   "terms": "Terms",
   "agreeTip": "Please agree to the Privacy Policy and Terms",
+  "registeredSuccessfully": "registered successfully",
   "goToLogin": "Login instead",
   "passwordStrength": "Use 8 or more characters with a mix of letters, numbers & symbols",
   "forgetPassword": "Forget Password?",

@@ -17,7 +17,7 @@ import { message } from 'ant-design-vue';
 
 import { useAuthStore } from '#/store';
 
-import { refreshTokenApi } from './core';
+import { refreshTokenApi, decryptData, encryptData } from './core';
 
 const { apiURL } = useAppConfig(import.meta.env, import.meta.env.PROD);
 
@@ -68,6 +68,33 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       config.headers.Authorization = formatToken(accessStore.accessToken);
       config.headers['Accept-Language'] = preferences.app.locale;
       return config;
+    },
+  });
+
+  client.addRequestInterceptor({
+    fulfilled: async (config) => {
+      const { data } = config;
+      if (data) {
+        config.data = {
+          ciphertext: encryptData(data)
+        };
+      }
+      return config;
+    },
+    rejected(error) {
+      return Promise.reject(error);
+    },
+  });
+  client.addResponseInterceptor({
+    fulfilled(response) {
+      const { data, } = response;
+      if (data && data.ciphertext && typeof data.ciphertext === 'string') {
+        response.data = decryptData(data.ciphertext);
+      }
+      return response;
+    },
+    rejected(error) {
+      return Promise.reject(error);
     },
   });
 
