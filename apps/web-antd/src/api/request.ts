@@ -71,32 +71,33 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
     },
   });
 
-  client.addRequestInterceptor({
-    fulfilled: async (config) => {
-      const { data } = config;
-      if (data) {
-        config.data = {
-          ciphertext: encryptData(data)
-        };
-      }
-      return config;
-    },
-    rejected(error) {
-      return Promise.reject(error);
-    },
-  });
-  client.addResponseInterceptor({
-    fulfilled(response) {
-      const { data, } = response;
-      if (data && data.ciphertext && typeof data.ciphertext === 'string') {
-        response.data = decryptData(data.ciphertext);
-      }
-      return response;
-    },
-    rejected(error) {
-      return Promise.reject(error);
-    },
-  });
+  // client.addRequestInterceptor({
+  //   fulfilled: async (config) => {
+  //     const { data } = config;
+  //     if (data) {
+  //       config.data = {
+  //         ciphertext: encryptData(data)
+  //       };
+  //     }
+  //     return config;
+  //   },
+  //   rejected(error) {
+  //     return Promise.reject(error);
+  //   },
+  // });
+  // client.addResponseInterceptor({
+  //   fulfilled(response) {
+  //     const { data, } = response;
+  //     if (data && data.ciphertext && typeof data.ciphertext === 'string') {
+  //       response.data = decryptData(data.ciphertext);
+  //     }
+  //     console.log(response);
+  //     return response;
+  //   },
+  //   rejected(error) {
+  //     return Promise.reject(error);
+  //   },
+  // });
 
   // 处理返回的响应数据格式
   client.addResponseInterceptor(
@@ -125,6 +126,8 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       // 当前mock接口返回的错误字段是 error 或者 message
       const responseData = error?.response?.data ?? {};
       const errorMessage = responseData?.error ?? responseData?.message ?? '';
+      // const responseData = error;
+      // const errorMessage = responseData.message;
       // 如果没有错误信息，则会根据状态码进行提示
       message.error(errorMessage || msg);
     }),
@@ -134,7 +137,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
 }
 
 export const requestClient = createRequestClient(apiURL, {
-  responseReturn: 'data',
+  responseReturn: 'body',
 });
 
 export const baseRequestClient = new RequestClient({ baseURL: apiURL });

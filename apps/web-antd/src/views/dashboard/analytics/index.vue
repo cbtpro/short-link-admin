@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { AnalysisOverviewItem } from '@vben/common-ui';
 import type { TabOption } from '@vben/types';
+import { findAllUser } from '#/api';
 
 import {
   AnalysisChartCard,
@@ -19,7 +20,15 @@ import AnalyticsVisitsData from './analytics-visits-data.vue';
 import AnalyticsVisitsSales from './analytics-visits-sales.vue';
 import AnalyticsVisitsSource from './analytics-visits-source.vue';
 import AnalyticsVisits from './analytics-visits.vue';
+import { onMounted } from 'vue';
 
+const loadAllUser = async () => {
+  const results = await findAllUser();
+  console.log(results);
+};
+onMounted(() => {
+  loadAllUser();
+});
 const overviewItems: AnalysisOverviewItem[] = [
   {
     icon: SvgCardIcon,

@@ -21,7 +21,6 @@ export const defaultResponseInterceptor = ({
   return {
     fulfilled: (response) => {
       const { config, data: responseData, status } = response;
-
       if (config.responseReturn === 'raw') {
         return response;
       }
@@ -87,7 +86,6 @@ export const authenticateResponseInterceptor = ({
 
       try {
         const newToken = await doRefreshToken();
-
         // 处理队列中的请求
         client.refreshTokenQueue.forEach((callback) => callback(newToken));
         // 清空队列
@@ -117,7 +115,9 @@ export const errorMessageResponseInterceptor = (
       if (axios.isCancel(error)) {
         return Promise.reject(error);
       }
-
+      if (error.status === undefined) {
+        return Promise.reject(error);
+      }
       const err: string = error?.toString?.() ?? '';
       let errMsg = '';
       if (err?.includes('Network Error')) {
@@ -132,7 +132,6 @@ export const errorMessageResponseInterceptor = (
 
       let errorMessage = '';
       const status = error?.response?.status;
-
       switch (status) {
         case 400: {
           errorMessage = $t('ui.fallback.http.badRequest');
