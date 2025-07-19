@@ -19,6 +19,15 @@ const formSchema = computed((): VbenFormSchema[] => {
     {
       component: 'VbenInput',
       componentProps: {
+        placeholder: $t('authentication.realNameTip'),
+      },
+      fieldName: 'realName',
+      label: $t('authentication.realName'),
+      rules: z.string().min(1, { message: $t('authentication.realNameTip') }),
+    },
+    {
+      component: 'VbenInput',
+      componentProps: {
         placeholder: $t('authentication.usernameTip'),
       },
       fieldName: 'username',
@@ -87,10 +96,10 @@ const formSchema = computed((): VbenFormSchema[] => {
 async function handleSubmit(value: Recordable<any>) {
   // eslint-disable-next-line no-console
   console.log('register submit:', value);
-  const { agreePolicy, username, password, confirmPassword, captcha } = value;
-  const params = { agreePolicy, username, password, confirmPassword, captcha };
+  const { agreePolicy, realName, username, password, confirmPassword, captcha } = value;
+  const params = { agreePolicy, realName, username, password, confirmPassword, captcha };
   await registerApi(params);
-  
+
   message.success($t('authentication.registeredSuccessfully'));
 }
 </script>

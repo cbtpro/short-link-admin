@@ -1,7 +1,8 @@
 <script lang="ts" setup>
+import { computed, onMounted, ref, type Ref } from 'vue';
 import type { AnalysisOverviewItem } from '@vben/common-ui';
 import type { TabOption } from '@vben/types';
-import { findAllUser } from '#/api';
+import { countAllUser } from '#/api';
 
 import {
   AnalysisChartCard,
@@ -20,45 +21,51 @@ import AnalyticsVisitsData from './analytics-visits-data.vue';
 import AnalyticsVisitsSales from './analytics-visits-sales.vue';
 import AnalyticsVisitsSource from './analytics-visits-source.vue';
 import AnalyticsVisits from './analytics-visits.vue';
-import { onMounted } from 'vue';
 
-const loadAllUser = async () => {
-  const results = await findAllUser();
-  console.log(results);
-};
-onMounted(() => {
-  loadAllUser();
+// 单独存储用户总数
+const userCount = ref(0);
+
+onMounted(async () => {
+  try {
+    const count = await countAllUser();
+    userCount.value = count;
+  } catch (err) {
+    console.error('获取用户总数失败:', err);
+  }
 });
-const overviewItems: AnalysisOverviewItem[] = [
-  {
-    icon: SvgCardIcon,
-    title: '用户量',
-    totalTitle: '总用户量',
-    totalValue: 120_000,
-    value: 2000,
-  },
-  {
-    icon: SvgCakeIcon,
-    title: '访问量',
-    totalTitle: '总访问量',
-    totalValue: 500_000,
-    value: 20_000,
-  },
-  {
-    icon: SvgDownloadIcon,
-    title: '下载量',
-    totalTitle: '总下载量',
-    totalValue: 120_000,
-    value: 8000,
-  },
-  {
-    icon: SvgBellIcon,
-    title: '使用量',
-    totalTitle: '总使用量',
-    totalValue: 50_000,
-    value: 5000,
-  },
-];
+
+const overviewItems = computed<AnalysisOverviewItem[]>(() => {
+  return [
+    {
+      icon: SvgCardIcon,
+      title: '用户量',
+      totalTitle: '总用户量',
+      totalValue: userCount.value,
+      value: 2000,
+    },
+    {
+      icon: SvgCakeIcon,
+      title: '访问量',
+      totalTitle: '总访问量',
+      totalValue: 500_000,
+      value: 20_000,
+    },
+    {
+      icon: SvgDownloadIcon,
+      title: '下载量',
+      totalTitle: '总下载量',
+      totalValue: 120_000,
+      value: 8000,
+    },
+    {
+      icon: SvgBellIcon,
+      title: '使用量',
+      totalTitle: '总使用量',
+      totalValue: 50_000,
+      value: 5000,
+    },
+  ];
+});
 
 const chartTabs: TabOption[] = [
   {

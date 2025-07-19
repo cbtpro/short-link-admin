@@ -71,33 +71,39 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
     },
   });
 
-  // client.addRequestInterceptor({
-  //   fulfilled: async (config) => {
-  //     const { data } = config;
-  //     if (data) {
-  //       config.data = {
-  //         ciphertext: encryptData(data)
-  //       };
-  //     }
-  //     return config;
-  //   },
-  //   rejected(error) {
-  //     return Promise.reject(error);
-  //   },
-  // });
-  // client.addResponseInterceptor({
-  //   fulfilled(response) {
-  //     const { data, } = response;
-  //     if (data && data.ciphertext && typeof data.ciphertext === 'string') {
-  //       response.data = decryptData(data.ciphertext);
-  //     }
-  //     console.log(response);
-  //     return response;
-  //   },
-  //   rejected(error) {
-  //     return Promise.reject(error);
-  //   },
-  // });
+  /**
+   * 添加请求参数加密拦截器
+   */
+  client.addRequestInterceptor({
+    fulfilled: async (config) => {
+      const { data } = config;
+      if (data) {
+        config.data = {
+          ciphertext: encryptData(data)
+        };
+      }
+      return config;
+    },
+    rejected(error) {
+      return Promise.reject(error);
+    },
+  });
+  /**
+   * 添加相应解密拦截器
+   */
+  client.addResponseInterceptor({
+    fulfilled(response) {
+      const { data, } = response;
+      if (data && data.ciphertext && typeof data.ciphertext === 'string') {
+        response.data = decryptData(data.ciphertext);
+      }
+      console.log(response);
+      return response;
+    },
+    rejected(error) {
+      return Promise.reject(error);
+    },
+  });
 
   // 处理返回的响应数据格式
   client.addResponseInterceptor(
