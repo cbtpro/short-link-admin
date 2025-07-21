@@ -9,6 +9,8 @@ import '@vben/styles/antd';
 
 import { useTitle } from '@vueuse/core';
 
+import { initDeviceFingerprint } from '#/utils';
+
 import { $t, setupI18n } from '#/locales';
 
 import { initComponentAdapter } from './adapter/component';
@@ -17,6 +19,8 @@ import App from './app.vue';
 import { router } from './router';
 
 async function bootstrap(namespace: string) {
+  // 初始化用户指纹
+  await initDeviceFingerprint();
   // 初始化组件适配器
   await initComponentAdapter();
 

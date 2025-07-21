@@ -18,6 +18,7 @@ import { message } from 'ant-design-vue';
 import { useAuthStore } from '#/store';
 
 import { refreshTokenApi, decryptData, encryptData } from './core';
+import { getDeviceId } from '#/utils';
 
 const { apiURL } = useAppConfig(import.meta.env, import.meta.env.PROD);
 
@@ -59,7 +60,21 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   function formatToken(token: null | string) {
     return token ? `Bearer ${token}` : null;
   }
-
+  /**
+   * 添加用户指纹
+   */
+  client.addRequestInterceptor({
+    fulfilled: async (config) => {
+      const deviceId = getDeviceId();
+      if (deviceId) {
+        config.headers['X-Device-Id'] = deviceId; // 自动添加
+      }
+      return config;
+    },
+    rejected(error) {
+      return Promise.reject(error);
+    },
+  });
   // 请求头处理
   client.addRequestInterceptor({
     fulfilled: async (config) => {
