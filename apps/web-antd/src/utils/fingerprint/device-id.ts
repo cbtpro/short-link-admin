@@ -1,31 +1,25 @@
-export async function generateDeviceId(): Promise<string> {
-  const navigatorInfo = window.navigator;
-  const screenInfo = window.screen;
+import CryptoJS from 'crypto-js';
 
-  const rawData = [
-    navigatorInfo.userAgent,
-    navigatorInfo.language,
-    navigatorInfo.platform,
-    screenInfo.width,
-    screenInfo.height,
-    Intl.DateTimeFormat().resolvedOptions().timeZone,
+export function generateDeviceId(): string {
+  const navigatorInfo = window.navigator;
+
+  const components = [
+    /**
+     * 浏览器及系统信息，稳定性较高
+     */
+    navigatorInfo.userAgent || '',
+    /**
+     * 浏览器语言，用户改动较少
+     */
+    navigatorInfo.language || '',
+    /**
+     * 时区，用户一般不会频繁改
+     */
+    Intl.DateTimeFormat().resolvedOptions().timeZone || '',
   ].join('||');
 
-  if (window.crypto?.subtle?.digest) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(rawData);
-    const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hex;
-  } else {
-    // fallback: 简单 hash（不安全，但兜底）
-    let hash = 0;
-    for (let i = 0; i < rawData.length; i++) {
-      const chr = rawData.charCodeAt(i);
-      hash = (hash << 5) - hash + chr;
-      hash |= 0;
-    }
-    return `fallback-${Math.abs(hash)}`;
-  }
+  // 生成 SHA256 不可逆哈希
+  const hash = CryptoJS.SHA256(components);
+
+  return hash.toString(CryptoJS.enc.Hex);
 }
