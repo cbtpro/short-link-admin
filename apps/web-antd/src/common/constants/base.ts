@@ -41,7 +41,6 @@ export enum DeletedStatus {
 }
 
 const DELETED_STATUS_SOURCE = [
-  { value: null, label: '未删除' },
   { value: DeletedStatus.NotDeleted, label: '未删除' },
   { value: DeletedStatus.Deleted, label: '删除' },
 ];
