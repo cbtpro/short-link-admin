@@ -86,13 +86,14 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
     },
   });
 
+  const { enabledEncryptData, enabledDecryptData } = useAppConfig(import.meta.env, import.meta.env.PROD);
   /**
    * 添加请求参数加密拦截器
    */
   client.addRequestInterceptor({
     fulfilled: async (config) => {
       const { data } = config;
-      if (data) {
+      if (data && enabledEncryptData) {
         config.data = {
           ciphertext: encryptData(data)
         };
@@ -108,8 +109,8 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
    */
   client.addResponseInterceptor({
     fulfilled(response) {
-      const { data, } = response;
-      if (data && data.ciphertext && typeof data.ciphertext === 'string') {
+      const { data } = response;
+      if (data && enabledDecryptData && data.ciphertext && typeof data.ciphertext === 'string') {
         response.data = decryptData(data.ciphertext);
       }
       console.log(response);

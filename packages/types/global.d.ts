@@ -13,11 +13,22 @@ export interface VbenAdminProAppConfigRaw {
    * 接口请求解密密钥
    */
   VITE_GLOB_SECRET_KEY: string;
+  /**
+   * 是否开启加密
+   */
+  VITE_GLOB_ENABLED_ENCRYPT_DATA: string;
+  /**
+   * 是否开启解密
+   */
+  VITE_GLOB_ENABLED_DECRYPT_DATA: string;
+
 }
 
 export interface ApplicationConfig {
   apiURL: string;
   secretKey: string;
+  enabledEncryptData: boolean;
+  enabledDecryptData: boolean;
 }
 
 declare global {
