@@ -7,7 +7,7 @@ import { setupVbenVxeTable, useVbenVxeGrid } from '@vben/plugins/vxe-table';
 import { Button, Image } from 'ant-design-vue';
 
 import { useVbenForm } from './form';
-import { getDeletedStatusLabel, getEnabledStatusLabel } from '#/common/constants';
+import { DeletedStatus, getDeletedStatusLabel, getEnabledStatusLabel } from '#/common/constants';
 
 setupVbenVxeTable({
   configVxeTable: (vxeUI) => {
@@ -73,7 +73,7 @@ setupVbenVxeTable({
     vxeUI.renderer.add('deletedRender', {
       renderDefault(_renderOpts, params) {
         const { row } = params;
-        return getDeletedStatusLabel(row.deleted) ?? '-';
+        return getDeletedStatusLabel(row.deleted ?? DeletedStatus.NotDeleted) ?? '-';
       },
     });
   },

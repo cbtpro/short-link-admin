@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
 import { useVbenForm } from '#/adapter/form';
-import { useVbenDrawer } from '@vben/common-ui';
-import { queryOriginalLink, updateOriginalLink } from '#/api';
+import { useVbenDrawer, z } from '@vben/common-ui';
+import { createOriginalLink, queryOriginalLink, updateOriginalLink } from '#/api';
 import { EnabledStatus } from '#/common/constants';
 import { message } from 'ant-design-vue';
 
@@ -29,7 +29,8 @@ const props = withDefaults(defineProps<IProps>(), {
 });
 
 const emits = defineEmits<{
-  'update:opened': [value: boolean]
+  'update:opened': [value: boolean];
+  'refresh-list': [];
 }>();
 
 const title = computed(() => {
@@ -103,29 +104,10 @@ function resetData() {
     originalUrl: '',
     // ...
   };
+  if (formInstance) {
+    formInstance.setValues(data.value);
+  }
 }
-
-/**
- * 监听打开，id，mode，切换数据
- */
-watch(
-  () => [props.opened, props.uuid ?? '', props.mode],
-  ([opened, uuid, mode]) => {
-    if (opened) {
-      if (mode === 'new') {
-        resetData();
-      } else if (mode === 'edit' && typeof uuid === 'string') {
-        fetchData(uuid);
-      }
-    } else {
-      data.value = {
-        uuid: '',
-        originalUrl: '',
-      }; // 关闭时清空
-    }
-  },
-  { immediate: true }
-);
 
 defineExpose({
   openHandle,
@@ -133,6 +115,7 @@ defineExpose({
 
 
 const [BaseForm, formInstance] = useVbenForm({
+
   // 所有表单项共用，可单独在表单内覆盖
   commonConfig: {
     // 所有表单项
@@ -157,6 +140,7 @@ const [BaseForm, formInstance] = useVbenForm({
       fieldName: 'originalUrl',
       // 界面显示的label
       label: '链接',
+      rules: z.string().url({ message: '请输入正确的链接' }),
     },
     {
       component: 'Switch',
@@ -173,15 +157,46 @@ const [BaseForm, formInstance] = useVbenForm({
   wrapperClass: 'grid-cols-1',
 });
 
+const updateDataLoading = ref(false);
 async function onSubmit(values: IOriginalLink) {
-  const uuid = props.uuid;
-  if (uuid) {
-    debugger;
-    const response = await updateOriginalLink(uuid, values);
-    console.log(response);
-    message.success('成功');
+  try {
+    updateDataLoading.value = true;
+    const uuid = props.uuid;
+    if (props.mode === 'new') {
+      await createOriginalLink(values);
+      message.success('新增成功');
+      resetData();
+    } else if (uuid) {
+      await updateOriginalLink(uuid, values);
+      message.success('修改成功');
+    }
+    // 触发父组件事件，告诉它刷新列表
+    emits('refresh-list');
+  } catch (error: any) {
+    message.error(error);
+  } finally {
+    updateDataLoading.value = false;
   }
 }
+/**
+ * 监听打开，id，mode，切换数据
+ */
+watch(
+  () => [props.opened, props.uuid ?? '', props.mode],
+  ([opened, uuid, mode]) => {
+    if (opened) {
+      if (mode === 'new') {
+        resetData();
+      } else if (mode === 'edit' && typeof uuid === 'string') {
+        fetchData(uuid);
+      }
+    } else {
+      resetData();
+    }
+  },
+  { immediate: true }
+);
+
 </script>
 
 <template>
@@ -190,7 +205,11 @@ async function onSubmit(values: IOriginalLink) {
     <Drawer v-model:opened="isOpen" class="w-[600px]" :title="title">
       <template v-if="loading">加载中...</template>
       <template v-else>
-        <BaseForm v-model:value="data" />
+        <BaseForm v-loading="updateDataLoading" v-model:value="data" :resetButtonOptions="{
+          loading: loading
+        }" :submitButtonOptions="{
+          loading: loading,
+        }" />
       </template>
     </Drawer>
   </div>

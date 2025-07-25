@@ -14,6 +14,9 @@ export async function queryOriginalLink(uuid: string) {
   })
 }
 
+export async function createOriginalLink(data: IOriginalLink) {
+  return requestClient.post<IOriginalLink>(`/original-link`, data)
+}
 export async function updateOriginalLink(uuid: string, data: IOriginalLink) {
   return requestClient.put<IOriginalLink>(`/original-link/${uuid}`, data)
 }
