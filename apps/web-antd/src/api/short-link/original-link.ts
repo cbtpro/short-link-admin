@@ -2,10 +2,8 @@ import { requestClient } from '#/api/request';
 /**
  * 查询原始链接列表
  */
-export async function queryOriginalLinks(params: PageFetchParams) {
-  return requestClient.get<IResponseBodyByPagination<IOriginalLink>>('/original-link/query', {
-    params,
-  });
+export async function queryOriginalLinks(data: PageFetchParams) {
+  return requestClient.post<IResponseBodyByPagination<IOriginalLink>>('/original-link/query', data);
 }
 
 export async function queryOriginalLink(uuid: string) {

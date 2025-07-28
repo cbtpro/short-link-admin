@@ -113,7 +113,6 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       if (data && enabledDecryptData && data.ciphertext && typeof data.ciphertext === 'string') {
         response.data = decryptData(data.ciphertext);
       }
-      console.log(response);
       return response;
     },
     rejected(error) {

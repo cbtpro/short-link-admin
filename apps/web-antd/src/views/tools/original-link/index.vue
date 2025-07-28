@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { Button } from 'ant-design-vue';
 import { Page, type VbenFormProps } from '@vben/common-ui';
-import { useVbenVxeGrid, type VxeTableGridOptions } from '#/adapter/vxe-table';
+import { useVbenVxeGrid, type VxeGridListeners, type VxeGridPropTypes, type VxeTableGridOptions } from '#/adapter/vxe-table';
 import dayjs from 'dayjs';
 import OriginalLinkDetail from './components/origial-link-detail/index.vue'
 import { DELETED_STATUS_LIST, ENABLED_STATUS_LIST } from '#/common/constants';
@@ -19,8 +19,10 @@ enum OrderType {
 interface PaginationInfo {
   page?: number;
   pageSize?: number;
-  orderBy?: string;
-  order?: OrderType;
+  sortList?: {
+    field: string;
+    order: OrderType;
+  }[];
 }
 type RowType = PaginationInfo & {
   uuid?: string;
@@ -37,8 +39,8 @@ type RowType = PaginationInfo & {
 }
 
 const DEFAULT_RANGE_7_DAYS = [
-  dayjs().subtract(7, 'day').startOf('day'),
-  dayjs().add(1, 'day').startOf('day'),
+  dayjs().subtract(7, 'day').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+  dayjs().add(1, 'day').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
 ];
 const formOptions: VbenFormProps = {
   // 默认展开
@@ -76,12 +78,20 @@ const formOptions: VbenFormProps = {
       defaultValue: DEFAULT_RANGE_7_DAYS,
       fieldName: 'createdTime',
       label: '创建时间',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      },
     },
     {
       component: 'RangePicker',
-      defaultValue: DEFAULT_RANGE_7_DAYS,
+      // defaultValue: DEFAULT_RANGE_7_DAYS,
       fieldName: 'updatedTime',
       label: '更新时间',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      },
     },
   ],
   // 控制表单是否显示折叠按钮
@@ -91,25 +101,62 @@ const formOptions: VbenFormProps = {
   // 按下回车时是否提交表单
   submitOnEnter: false,
 };
+function buildQueryParams(
+  page: VxeGridPropTypes.ProxyAjaxQueryPageParams,
+  formValues: {
+    [key: string]: any;
+  },
+  sorts?: VxeGridPropTypes.ProxyAjaxQuerySortCheckedParams<RowType>[],
+): RowType {
+  const sortList = (sorts || []).map((item) => {
+    const { field, order } = item;
+    return { field, order };
+  });
+  const params: RowType = {
+    page: page.currentPage,
+    pageSize: page.pageSize,
+    sortList,
+    ...formValues,
+  };
+  return params;
+}
 
 const gridOptions: VxeTableGridOptions<RowType> = {
   checkboxConfig: {
     highlight: true,
     labelField: 'name',
   },
+  sortConfig: {
+    remote: true,
+    trigger: 'cell',
+    showIcon: true,
+    multiple: true,
+  },
   columns: [
     { title: '序号', type: 'seq', width: 50 },
     { align: 'left', field: 'originalUrl', title: '链接' },
-    { align: 'left', width: 100, field: 'enabled', title: '启用', cellRender: { name: 'enabledRender' }, },
-    { align: 'left', width: 100, field: 'deleted', title: '删除', cellRender: { name: 'deletedRender' }, },
-    { align: 'left', field: 'createdTime', formatter: 'formatDateTime', title: '创建时间' },
-    { align: 'left', field: 'updatedTime', formatter: 'formatDateTime', title: '更新时间' },
+    {
+      align: 'left', width: 100, field: 'enabled', title: '启用',
+      sortable: true, cellRender: { name: 'enabledRender' },
+    },
+    {
+      align: 'left', width: 100, field: 'deleted', title: '删除',
+      sortable: true, cellRender: { name: 'deletedRender' },
+    },
+    {
+      align: 'left', field: 'createdTime', formatter: 'formatDateTime', title: '创建时间',
+      sortable: true,
+    },
+    {
+      align: 'left', field: 'updatedTime', formatter: 'formatDateTime', title: '更新时间',
+      sortable: true,
+    },
     {
       field: 'action',
       fixed: 'right',
       slots: { default: 'action' },
       title: '操作',
-      width: 120,
+      // width: 120,
     },
   ],
   exportConfig: {},
@@ -118,13 +165,9 @@ const gridOptions: VxeTableGridOptions<RowType> = {
   pagerConfig: {},
   proxyConfig: {
     ajax: {
-      query: async ({ page }, formValues) => {
-        // message.success(`Query params: ${JSON.stringify(formValues)}`);
-        return await queryOriginalLinks({
-          page: page.currentPage,
-          pageSize: page.pageSize,
-          ...formValues,
-        });
+      query: async ({ page, sorts }, formValues) => {
+        const data = buildQueryParams(page, formValues, sorts);
+        return await queryOriginalLinks(data);
       },
     },
   },
@@ -137,9 +180,21 @@ const gridOptions: VxeTableGridOptions<RowType> = {
     zoom: true,
   },
 };
+const sortParams = ref<{ field: string; order: string }[]>([]);
+
+const gridEvents: VxeGridListeners<RowType> = {
+  sortChange({ sortList }) {
+    // sortParams.value = sortList.map(({ field, order }) => ({
+    //   field,
+    //   order: order?.toLowerCase() || OrderType.ASC, // ASC => asc
+    // }));
+    extendedApi.query();
+  }
+}
 const [Grid, extendedApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
+  gridEvents,
 });
 
 const opened = ref(false);
@@ -164,7 +219,7 @@ const currentUUID = ref<string | undefined | null>('');
       <template #toolbar-tools>
         <Button class="mr-2" type="primary" shape="circle" @click="createNewOriginLink">
           <template #icon>
-            <span class="icon-[mdi--plus]"></span> 
+            <span class="icon-[mdi--plus]"></span>
           </template>
         </Button>
         <!-- <Button class="mr-2" type="primary" @click="() => extendedApi.query()">
@@ -175,7 +230,9 @@ const currentUUID = ref<string | undefined | null>('');
         </Button> -->
       </template>
       <template #action="{ row }">
-        <Button @click="toggleOpened(row)" type="link" :disabled="!!row.deleted">编辑</Button>
+        <Button @click="toggleOpened(row)" type="link" :disabled="!!row.deleted">详情</Button>
+        <Button v-if="!row.deleted" @click="toggleOpened(row)" type="link" :disabled="!!row.deleted">编辑</Button>
+        <Button v-if="!row.deleted" @click="toggleOpened(row)" type="link">删除</Button>
       </template>
     </Grid>
     <OriginalLinkDetail v-model:opened="opened" :mode="mode" :uuid="currentUUID" @refresh-list="extendedApi.reload" />
