@@ -35,7 +35,7 @@ export function useAppConfig(
      * 接口加密解密密钥
      */
     secretKey: VITE_GLOB_SECRET_KEY,
-    enabledEncryptData: getBoolean(VITE_GLOB_ENABLED_DECRYPT_DATA),
-    enabledDecryptData: getBoolean(VITE_GLOB_ENABLED_ENCRYPT_DATA),
+    enabledEncryptData: getBoolean(VITE_GLOB_ENABLED_ENCRYPT_DATA),
+    enabledDecryptData: getBoolean(VITE_GLOB_ENABLED_DECRYPT_DATA),
   };
 }
