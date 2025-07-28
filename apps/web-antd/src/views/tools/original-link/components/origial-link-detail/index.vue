@@ -54,6 +54,7 @@ const title = computed(() => {
 })
 
 const [Drawer, drawerApi] = useVbenDrawer({
+  showConfirmButton: false,
   closeOnClickModal: false,
   closeOnPressEscape: false,
   onClosed() {
