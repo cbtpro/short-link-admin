@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { Button } from 'ant-design-vue';
+import { h, ref } from 'vue';
+import { Button, message, Modal, notification } from 'ant-design-vue';
 import { Page, type VbenFormProps } from '@vben/common-ui';
 import { useVbenVxeGrid, type VxeGridListeners, type VxeGridPropTypes, type VxeTableGridOptions } from '#/adapter/vxe-table';
 import dayjs from 'dayjs';
 import OriginalLinkDetail from './components/origial-link-detail/index.vue'
 import { DELETED_STATUS_LIST, ENABLED_STATUS_LIST } from '#/common/constants';
-import { queryOriginalLinks } from '#/api';
+import { deleteOriginalLink, queryOriginalLinks, undoDeleteOriginalLink } from '#/api';
 
 defineOptions({
   name: 'OriginalLink',
@@ -208,9 +208,62 @@ const createNewOriginLink = () => {
   currentUUID.value = null;
   mode.value = 'new';
 }
+const detailOriginalLink = async (row: RowType) => {
+  opened.value = true;
+  currentUUID.value = row?.uuid;
+  mode.value = 'detail';
+}
 const mode = ref<'edit' | "new" | "detail">('new');
 const currentUUID = ref<string | undefined | null>('');
 
+const showUndoDeleteNotigication = (uuid: string) => {
+  const key = `delete_${uuid}`;
+
+  const btn = h(
+    'button',
+    {
+      style: 'margin-left: 12px; color: #1677ff;',
+      onClick: async () => {
+        await undoDeleteOriginalLink(uuid);
+        notification.close(key);
+        message.success('已恢复');
+        extendedApi.reload();
+      },
+    },
+    '撤销'
+  );
+
+  notification.open({
+    message: '提示',
+    description: h('span', {}, ['已删除', btn]),
+    key,
+    duration: 5,
+  });
+};
+const deleteOriginalLinkHandle = async (row: RowType) => {
+  if (!row.uuid) {
+    return;
+  }
+  Modal.confirm({
+    title: '确认删除该链接？',
+    content: '此操作不可撤销，是否继续？',
+    okText: '确定',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        if (!row.uuid) {
+          return;
+        }
+        await deleteOriginalLink(row.uuid);
+        message.success('删除成功');
+        showUndoDeleteNotigication(row.uuid);
+        extendedApi.reload();
+      } catch (error: any) {
+        message.error(error?.message || '删除失败');
+      }
+    },
+  });
+}
 </script>
 
 <template>
@@ -230,9 +283,9 @@ const currentUUID = ref<string | undefined | null>('');
         </Button> -->
       </template>
       <template #action="{ row }">
-        <Button @click="toggleOpened(row)" type="link" :disabled="!!row.deleted">详情</Button>
+        <Button @click="detailOriginalLink(row)" type="link" :disabled="!!row.deleted">详情</Button>
         <Button v-if="!row.deleted" @click="toggleOpened(row)" type="link" :disabled="!!row.deleted">编辑</Button>
-        <Button v-if="!row.deleted" @click="toggleOpened(row)" type="link">删除</Button>
+        <Button v-if="!row.deleted" @click="deleteOriginalLinkHandle(row)" type="link">删除</Button>
       </template>
     </Grid>
     <OriginalLinkDetail v-model:opened="opened" :mode="mode" :uuid="currentUUID" @refresh-list="extendedApi.reload" />

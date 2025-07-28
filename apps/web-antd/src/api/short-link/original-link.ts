@@ -18,3 +18,10 @@ export async function createOriginalLink(data: IOriginalLink) {
 export async function updateOriginalLink(uuid: string, data: IOriginalLink) {
   return requestClient.put<IOriginalLink>(`/original-link/${uuid}`, data)
 }
+export async function deleteOriginalLink(uuid: string) {
+  return requestClient.delete<IOriginalLink>(`/original-link/${uuid}`)
+}
+
+export async function undoDeleteOriginalLink(uuid: string) {
+  return requestClient.post<IOriginalLink>(`/original-link/${uuid}/undo`)
+}

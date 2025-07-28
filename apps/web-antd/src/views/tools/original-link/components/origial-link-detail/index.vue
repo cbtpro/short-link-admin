@@ -121,6 +121,7 @@ const [BaseForm, formInstance] = useVbenForm({
     // 所有表单项
     componentProps: {
       class: 'w-full',
+      disabled: props.mode === 'detail',
     },
   },
   // 提交函数
@@ -156,7 +157,10 @@ const [BaseForm, formInstance] = useVbenForm({
   ],
   wrapperClass: 'grid-cols-1',
 });
-
+const isDetailMode = computed(() => props.mode === 'detail');
+watch(isDetailMode, (isDisabled) => {
+  formInstance?.setState({ commonConfig: { disabled: isDisabled } });
+});
 const updateDataLoading = ref(false);
 async function onSubmit(values: IOriginalLink) {
   try {
@@ -187,7 +191,7 @@ watch(
     if (opened) {
       if (mode === 'new') {
         resetData();
-      } else if (mode === 'edit' && typeof uuid === 'string') {
+      } else if (['edit', 'detail'].includes(mode as string) && typeof uuid === 'string') {
         fetchData(uuid);
       }
     } else {
