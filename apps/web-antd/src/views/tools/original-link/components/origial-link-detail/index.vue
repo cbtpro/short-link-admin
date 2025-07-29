@@ -86,7 +86,7 @@ const openHandle = () => {
 
 const data = ref<IOriginalLink>({
   uuid: '',
-  originalUrl: ''
+  originalUrl: '',
 });
 const loading = ref(false);
 

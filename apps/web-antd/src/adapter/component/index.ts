@@ -124,6 +124,9 @@ export type ComponentType =
   | 'Upload'
   | BaseFormComponentType;
 
+import JsonEditor from '#/components/form/json-editor.vue';
+// import AsyncSelect from '#/components/form/async-select.vue';
+
 async function initComponentAdapter() {
   const components: Partial<Record<ComponentType, Component>> = {
     // 如果你的组件体积比较大，可以使用异步加载
@@ -190,6 +193,8 @@ async function initComponentAdapter() {
     TimePicker,
     TreeSelect: withDefaultPlaceholder(TreeSelect, 'select'),
     Upload,
+    JsonEditor,
+    // AsyncSelect,
   };
 
   // 将组件注册到全局共享状态中

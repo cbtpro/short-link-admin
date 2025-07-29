@@ -45,11 +45,13 @@
     "ant-design-vue": "catalog:",
     "crypto-js": "catalog:",
     "dayjs": "catalog:",
+    "jsoneditor": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },
   "devDependencies": {
-    "@types/crypto-js": "catalog:"
+    "@types/crypto-js": "catalog:",
+    "@types/jsoneditor": "^9.9.5"
   }
 }

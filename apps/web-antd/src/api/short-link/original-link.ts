@@ -25,3 +25,7 @@ export async function deleteOriginalLink(uuid: string) {
 export async function undoDeleteOriginalLink(uuid: string) {
   return requestClient.post<IOriginalLink>(`/original-link/${uuid}/undo`)
 }
+
+export async function queryOriginalLinkOptions(data: { keyword: string; page: number; pageSize: number }) {
+  return requestClient.post<IResponseBodyByPagination<{ label: string, value: string }>>(`/original-link/options`, data)
+}

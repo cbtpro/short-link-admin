@@ -1,4 +1,4 @@
-interface IOriginalLink {
+type IOriginalLink = IBaseEntity & {
   uuid?: string;
   originalUrl: string;
   enabled?: number | boolean;
