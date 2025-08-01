@@ -17,8 +17,7 @@ import { message } from 'ant-design-vue';
 
 import { useAuthStore } from '#/store';
 
-import { refreshTokenApi, decryptData, encryptData } from './core';
-import { getDeviceId } from '#/utils';
+import { decryptData, encryptData, refreshTokenApi } from './core';
 
 const { apiURL } = useAppConfig(import.meta.env, import.meta.env.PROD);
 
@@ -60,21 +59,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   function formatToken(token: null | string) {
     return token ? `Bearer ${token}` : null;
   }
-  /**
-   * 添加用户指纹
-   */
-  client.addRequestInterceptor({
-    fulfilled: async (config) => {
-      const deviceId = getDeviceId();
-      if (deviceId) {
-        config.headers['X-Device-Id'] = deviceId; // 自动添加
-      }
-      return config;
-    },
-    rejected(error) {
-      return Promise.reject(error);
-    },
-  });
+
   // 请求头处理
   client.addRequestInterceptor({
     fulfilled: async (config) => {
@@ -86,7 +71,10 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
     },
   });
 
-  const { enabledEncryptData, enabledDecryptData } = useAppConfig(import.meta.env, import.meta.env.PROD);
+  const { enabledEncryptData, enabledDecryptData } = useAppConfig(
+    import.meta.env,
+    import.meta.env.PROD,
+  );
   /**
    * 添加请求参数加密拦截器
    */
@@ -95,7 +83,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       const { data } = config;
       if (data && enabledEncryptData) {
         config.data = {
-          ciphertext: encryptData(data)
+          ciphertext: encryptData(data),
         };
       }
       return config;
@@ -109,9 +97,16 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
    */
   client.addResponseInterceptor({
     fulfilled(response) {
-      const { data } = response;
-      if (data && enabledDecryptData && data.ciphertext && typeof data.ciphertext === 'string') {
-        response.data = decryptData(data.ciphertext);
+      const {
+        data: { data },
+      } = response;
+      if (
+        data &&
+        enabledDecryptData &&
+        data.ciphertext &&
+        typeof data.ciphertext === 'string'
+      ) {
+        response.data.data = decryptData(data.ciphertext);
       }
       return response;
     },
@@ -147,8 +142,6 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       // 当前mock接口返回的错误字段是 error 或者 message
       const responseData = error?.response?.data ?? {};
       const errorMessage = responseData?.error ?? responseData?.message ?? '';
-      // const responseData = error;
-      // const errorMessage = responseData.message;
       // 如果没有错误信息，则会根据状态码进行提示
       message.error(errorMessage || msg);
     }),
@@ -158,7 +151,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
 }
 
 export const requestClient = createRequestClient(apiURL, {
-  responseReturn: 'body',
+  responseReturn: 'data',
 });
 
 export const baseRequestClient = new RequestClient({ baseURL: apiURL });

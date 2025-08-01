@@ -3,29 +3,38 @@ import { requestClient } from '#/api/request';
  * 查询原始链接列表
  */
 export async function queryOriginalLinks(data: PageFetchParams) {
-  return requestClient.post<IResponseBodyByPagination<IOriginalLink>>('/original-link/query', data);
+  return requestClient.post<IResponseBodyByPagination<IOriginalLink>>(
+    '/original-link/query',
+    data,
+  );
 }
 
 export async function queryOriginalLink(uuid: string) {
-  return requestClient.get<IOriginalLink>(`/original-link/${uuid}`, {
+  return requestClient.post<IOriginalLink>(`/original-link/${uuid}`, {
     params: {},
-  })
+  });
 }
 
 export async function createOriginalLink(data: IOriginalLink) {
-  return requestClient.post<IOriginalLink>(`/original-link`, data)
+  return requestClient.post<IOriginalLink>(`/original-link`, data);
 }
 export async function updateOriginalLink(uuid: string, data: IOriginalLink) {
-  return requestClient.put<IOriginalLink>(`/original-link/${uuid}`, data)
+  return requestClient.put<IOriginalLink>(`/original-link/${uuid}`, data);
 }
 export async function deleteOriginalLink(uuid: string) {
-  return requestClient.delete<IOriginalLink>(`/original-link/${uuid}`)
+  return requestClient.delete<IOriginalLink>(`/original-link/${uuid}`);
 }
 
 export async function undoDeleteOriginalLink(uuid: string) {
-  return requestClient.post<IOriginalLink>(`/original-link/${uuid}/undo`)
+  return requestClient.post<IOriginalLink>(`/original-link/${uuid}/undo`);
 }
 
-export async function queryOriginalLinkOptions(data: { keyword: string; page: number; pageSize: number }) {
-  return requestClient.post<IResponseBodyByPagination<{ label: string, value: string }>>(`/original-link/options`, data)
+export async function queryOriginalLinkOptions(data: {
+  keyword: string;
+  page: number;
+  pageSize: number;
+}) {
+  return requestClient.post<
+    IResponseBodyByPagination<{ label: string; value: string }>
+  >(`/original-link/options`, data);
 }

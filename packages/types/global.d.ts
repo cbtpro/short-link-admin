@@ -4,11 +4,13 @@ import 'vue-router';
 
 declare module 'vue-router' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface RouteMeta extends IRouteMeta { }
+  interface RouteMeta extends IRouteMeta {}
 }
 
 export interface VbenAdminProAppConfigRaw {
   VITE_GLOB_API_URL: string;
+  VITE_GLOB_AUTH_DINGDING_CLIENT_ID: string;
+  VITE_GLOB_AUTH_DINGDING_CORP_ID: string;
   /**
    * 接口请求解密密钥
    */
@@ -21,11 +23,17 @@ export interface VbenAdminProAppConfigRaw {
    * 是否开启解密
    */
   VITE_GLOB_ENABLED_DECRYPT_DATA: string;
-
 }
 
+interface AuthConfig {
+  dingding?: {
+    clientId: string;
+    corpId: string;
+  };
+}
 export interface ApplicationConfig {
   apiURL: string;
+  auth: AuthConfig;
   secretKey: string;
   enabledEncryptData: boolean;
   enabledDecryptData: boolean;

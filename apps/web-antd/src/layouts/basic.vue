@@ -125,15 +125,28 @@ watch(
 <template>
   <BasicLayout @clear-preferences-and-logout="handleLogout">
     <template #user-dropdown>
-      <UserDropdown :avatar :menus :text="userStore.userInfo?.realName" :description="userStore.userInfo?.email"
-        tag-text="Pro" @logout="handleLogout" />
+      <UserDropdown
+        :avatar
+        :menus
+        :text="userStore.userInfo?.realName"
+        description="ann.vben@gmail.com"
+        tag-text="Pro"
+        @logout="handleLogout"
+      />
     </template>
     <template #notification>
-      <Notification :dot="showDot" :notifications="notifications" @clear="handleNoticeClear"
-        @make-all="handleMakeAll" />
+      <Notification
+        :dot="showDot"
+        :notifications="notifications"
+        @clear="handleNoticeClear"
+        @make-all="handleMakeAll"
+      />
     </template>
     <template #extra>
-      <AuthenticationLoginExpiredModal v-model:open="accessStore.loginExpired" :avatar>
+      <AuthenticationLoginExpiredModal
+        v-model:open="accessStore.loginExpired"
+        :avatar
+      >
         <LoginForm />
       </AuthenticationLoginExpiredModal>
     </template>

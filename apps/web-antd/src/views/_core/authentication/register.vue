@@ -3,12 +3,11 @@ import type { VbenFormSchema } from '@vben/common-ui';
 import type { Recordable } from '@vben/types';
 
 import { computed, h, ref } from 'vue';
-import { message } from 'ant-design-vue';
 
 import { AuthenticationRegister, z } from '@vben/common-ui';
+import { $t } from '@vben/locales';
 
 import { registerApi } from '#/api';
-import { $t } from '@vben/locales';
 
 defineOptions({ name: 'Register' });
 
@@ -96,8 +95,22 @@ const formSchema = computed((): VbenFormSchema[] => {
 async function handleSubmit(value: Recordable<any>) {
   // eslint-disable-next-line no-console
   console.log('register submit:', value);
-  const { agreePolicy, realName, username, password, confirmPassword, captcha } = value;
-  const params = { agreePolicy, realName, username, password, confirmPassword, captcha };
+  const {
+    agreePolicy,
+    realName,
+    username,
+    password,
+    confirmPassword,
+    captcha,
+  } = value;
+  const params = {
+    agreePolicy,
+    realName,
+    username,
+    password,
+    confirmPassword,
+    captcha,
+  };
   await registerApi(params);
 
   message.success($t('authentication.registeredSuccessfully'));
@@ -105,5 +118,9 @@ async function handleSubmit(value: Recordable<any>) {
 </script>
 
 <template>
-  <AuthenticationRegister :form-schema="formSchema" :loading="loading" @submit="handleSubmit" />
+  <AuthenticationRegister
+    :form-schema="formSchema"
+    :loading="loading"
+    @submit="handleSubmit"
+  />
 </template>

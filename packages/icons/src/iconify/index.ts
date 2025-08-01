@@ -12,4 +12,4 @@ export const MdiGoogle = createIconifyIcon('mdi:google');
 
 export const MdiQqchat = createIconifyIcon('mdi:qqchat');
 
-export const MdiAdd = createIconifyIcon('mdi:plus');
+export const RiDingding = createIconifyIcon('ri:dingding-fill');
