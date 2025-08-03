@@ -82,6 +82,24 @@ setupVbenVxeTable({
         );
       },
     });
+
+    vxeUI.renderer.add('shortLinksRender', {
+      renderDefault(_renderOpts, params) {
+        const { row } = params;
+        return (
+          row.shortLinks
+            ?.map((item: ISafeShortLink) => item.shortCode)
+            ?.join(',') ?? '-'
+        );
+      },
+    });
+
+    vxeUI.renderer.add('originalLinkRender', {
+      renderDefault(_renderOpts, params) {
+        const { row } = params;
+        return row.originalLink?.originalUrl ?? '-';
+      },
+    });
   },
   useVbenForm,
 });

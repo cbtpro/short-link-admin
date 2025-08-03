@@ -174,16 +174,16 @@ watch(isDetailMode, (isDisabled) => {
   formInstance?.setState({ commonConfig: { disabled: isDisabled } });
 });
 const updateDataLoading = ref(false);
-async function onSubmit(values: IOriginalLink) {
+async function onSubmit(values: Record<string, any>) {
   try {
     updateDataLoading.value = true;
     const uuid = props.uuid;
     if (props.mode === 'new') {
-      await createOriginalLink(values);
+      await createOriginalLink(values as IOriginalLink);
       message.success('新增成功');
       resetData();
     } else if (uuid) {
-      await updateOriginalLink(uuid, values);
+      await updateOriginalLink(uuid, values as IOriginalLink);
       message.success('修改成功');
     }
     // 触发父组件事件，告诉它刷新列表
@@ -228,9 +228,11 @@ watch(
           v-model:value="data"
           :reset-button-options="{
             loading,
+            disabled: isDetailMode,
           }"
           :submit-button-options="{
             loading,
+            disabled: isDetailMode,
           }"
         />
       </template>

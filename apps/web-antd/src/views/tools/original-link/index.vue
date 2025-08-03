@@ -150,7 +150,7 @@ const gridOptions: VxeTableGridOptions<RowType> = {
   },
   columns: [
     { title: '序号', type: 'seq', width: 50 },
-    { align: 'left', field: 'originalUrl', title: '链接' },
+    { align: 'left', field: 'originalUrl', title: '链接', sortable: true },
     {
       align: 'left',
       width: 100,
@@ -158,6 +158,14 @@ const gridOptions: VxeTableGridOptions<RowType> = {
       title: '启用',
       sortable: true,
       cellRender: { name: 'enabledRender' },
+    },
+    {
+      align: 'left',
+      width: 100,
+      field: 'shortLinks',
+      title: '短链接',
+      sortable: true,
+      cellRender: { name: 'shortLinksRender' },
     },
     {
       align: 'left',

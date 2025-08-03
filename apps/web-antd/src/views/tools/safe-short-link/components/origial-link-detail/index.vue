@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
 
-import { useVbenDrawer, z } from '@vben/common-ui';
+import { ApiComponent, useVbenDrawer, z } from '@vben/common-ui';
 
 import { message } from 'ant-design-vue';
 
@@ -89,8 +89,19 @@ const isOpen = computed({
 watch(
   () => props.opened,
   (val) => {
-    if (val) drawerApi.open();
-    else drawerApi.close();
+    if (val) {
+      drawerApi.open();
+    } else {
+      drawerApi.close();
+    }
+    // 获取组件实例并触发搜索
+    const apiSelectRef = formInstance.getFieldComponentRef(
+      'originalLinkId',
+    ) as typeof ApiComponent;
+    apiSelectRef?.updateParam({
+      keyword: '',
+      page: 1,
+    });
   },
 );
 
@@ -153,8 +164,9 @@ const [BaseForm, formInstance] = useVbenForm({
         api: queryOriginalLinkOptions,
         onSearch: (searchValue: string) => {
           // 获取组件实例并触发搜索
-          const apiSelectRef =
-            formInstance.getFieldComponentRef('originalLinkId');
+          const apiSelectRef = formInstance.getFieldComponentRef(
+            'originalLinkId',
+          ) as typeof ApiComponent;
           apiSelectRef?.updateParam({
             keyword: searchValue,
             page: 1,
@@ -401,9 +413,11 @@ watch(
           v-model:value="data"
           :reset-button-options="{
             loading,
+            disabled: isDetailMode,
           }"
           :submit-button-options="{
             loading,
+            disabled: isDetailMode,
           }"
         />
       </template>

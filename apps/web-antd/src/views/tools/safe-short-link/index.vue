@@ -153,7 +153,13 @@ const gridOptions: VxeTableGridOptions<RowType> = {
   },
   columns: [
     { title: '序号', type: 'seq', width: 50 },
-    { align: 'left', field: 'originalUrl', title: '链接' },
+    {
+      align: 'left',
+      field: 'originalLink',
+      title: '原始链接',
+      cellRender: { name: 'originalLinkRender' },
+    },
+    { align: 'left', field: 'shortCode', title: '短链接代码' },
     {
       align: 'left',
       width: 100,

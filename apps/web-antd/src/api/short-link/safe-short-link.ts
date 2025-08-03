@@ -10,7 +10,7 @@ export async function querySafeShortLinks(data: PageFetchParams) {
 }
 
 export async function querySafeShortLink(uuid: string) {
-  return requestClient.get<ISafeShortLink>(`/safe-short-link/${uuid}`, {
+  return requestClient.post<ISafeShortLink>(`/safe-short-link/${uuid}`, {
     params: {},
   });
 }
