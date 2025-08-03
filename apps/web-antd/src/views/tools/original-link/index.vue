@@ -309,7 +309,7 @@ const deleteOriginalLinkHandle = async (row: RowType) => {
     <Grid>
       <template #toolbar-tools>
         <Button
-          class="mr-2"
+          class="mr-2 flex items-center justify-center"
           type="primary"
           shape="circle"
           @click="createNewOriginLink"
