@@ -7,6 +7,8 @@ import { computed, h, ref } from 'vue';
 import { AuthenticationRegister, z } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
+import { message } from 'ant-design-vue';
+
 import { registerApi } from '#/api';
 
 defineOptions({ name: 'Register' });

@@ -1,5 +1,6 @@
-import CryptoJS from 'crypto-js';
 import { useAppConfig } from '@vben/hooks';
+
+import CryptoJS from 'crypto-js';
 
 const { secretKey } = useAppConfig(import.meta.env, import.meta.env.PROD);
 
@@ -14,7 +15,10 @@ const { secretKey } = useAppConfig(import.meta.env, import.meta.env.PROD);
  */
 export const encryptData = (data: string) => {
   // 使用CryptoJS的AES加密方法加密数据，并将加密结果转换为字符串
-  const ciphertext = CryptoJS.AES.encrypt(JSON.stringify(data), secretKey).toString();
+  const ciphertext = CryptoJS.AES.encrypt(
+    JSON.stringify(data),
+    secretKey,
+  ).toString();
   return ciphertext;
 };
 /**

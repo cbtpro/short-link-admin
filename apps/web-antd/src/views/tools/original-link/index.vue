@@ -1,21 +1,37 @@
 <script lang="ts" setup>
+import type { VbenFormProps } from '@vben/common-ui';
+
+import type {
+  VxeGridListeners,
+  VxeGridPropTypes,
+  VxeTableGridOptions,
+} from '#/adapter/vxe-table';
+
 import { h, ref } from 'vue';
+
+import { Page } from '@vben/common-ui';
+
 import { Button, message, Modal, notification } from 'ant-design-vue';
-import { Page, type VbenFormProps } from '@vben/common-ui';
-import { useVbenVxeGrid, type VxeGridListeners, type VxeGridPropTypes, type VxeTableGridOptions } from '#/adapter/vxe-table';
 import dayjs from 'dayjs';
-import OriginalLinkDetail from './components/origial-link-detail/index.vue'
-import { DELETED_STATUS_LIST, ENABLED_STATUS_LIST } from '#/common/constants';
-import { deleteOriginalLink, queryOriginalLinks, undoDeleteOriginalLink } from '#/api';
+
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import {
+  deleteOriginalLink,
+  queryOriginalLinks,
+  undoDeleteOriginalLink,
+} from '#/api';
+import {
+  DELETED_STATUS_LIST,
+  ENABLED_STATUS_LIST,
+  OrderType,
+} from '#/common/constants';
+
+import OriginalLinkDetail from './components/origial-link-detail/index.vue';
 
 defineOptions({
   name: 'OriginalLink',
-})
+});
 
-enum OrderType {
-  ASC = 'ASC',
-  DESC = 'DESC',
-}
 interface PaginationInfo {
   page?: number;
   pageSize?: number;
@@ -24,19 +40,19 @@ interface PaginationInfo {
     order: OrderType;
   }[];
 }
-type RowType = PaginationInfo & {
-  uuid?: string;
+type RowType = {
+  createdBy?: string;
+  createdTime?: string;
+  deleted?: number;
+  enabled?: number;
   /**
    * 链接关键字
    */
   keyword?: string;
-  createdBy?: string;
-  createdTime?: string;
   updatedBy?: string;
   updatedTime?: string;
-  enabled?: number;
-  deleted?: number;
-}
+  uuid?: string;
+} & PaginationInfo;
 
 const DEFAULT_RANGE_7_DAYS = [
   dayjs().subtract(7, 'day').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
@@ -115,7 +131,7 @@ function buildQueryParams(
   const params: RowType = {
     page: page.currentPage,
     pageSize: page.pageSize,
-    sortList,
+    sortList: sortList as { field: string; order: OrderType }[],
     ...formValues,
   };
   return params;
@@ -136,19 +152,33 @@ const gridOptions: VxeTableGridOptions<RowType> = {
     { title: '序号', type: 'seq', width: 50 },
     { align: 'left', field: 'originalUrl', title: '链接' },
     {
-      align: 'left', width: 100, field: 'enabled', title: '启用',
-      sortable: true, cellRender: { name: 'enabledRender' },
+      align: 'left',
+      width: 100,
+      field: 'enabled',
+      title: '启用',
+      sortable: true,
+      cellRender: { name: 'enabledRender' },
     },
     {
-      align: 'left', width: 100, field: 'deleted', title: '删除',
-      sortable: true, cellRender: { name: 'deletedRender' },
+      align: 'left',
+      width: 100,
+      field: 'deleted',
+      title: '删除',
+      sortable: true,
+      cellRender: { name: 'deletedRender' },
     },
     {
-      align: 'left', field: 'createdTime', formatter: 'formatDateTime', title: '创建时间',
+      align: 'left',
+      field: 'createdTime',
+      formatter: 'formatDateTime',
+      title: '创建时间',
       sortable: true,
     },
     {
-      align: 'left', field: 'updatedTime', formatter: 'formatDateTime', title: '更新时间',
+      align: 'left',
+      field: 'updatedTime',
+      formatter: 'formatDateTime',
+      title: '更新时间',
       sortable: true,
     },
     {
@@ -167,7 +197,7 @@ const gridOptions: VxeTableGridOptions<RowType> = {
     ajax: {
       query: async ({ page, sorts }, formValues) => {
         const data = buildQueryParams(page, formValues, sorts);
-        return await queryOriginalLinks(data);
+        return await queryOriginalLinks(data as PageFetchParams);
       },
     },
   },
@@ -180,17 +210,17 @@ const gridOptions: VxeTableGridOptions<RowType> = {
     zoom: true,
   },
 };
-const sortParams = ref<{ field: string; order: string }[]>([]);
+// const sortParams = ref<{ field: string; order: string }[]>([]);
 
 const gridEvents: VxeGridListeners<RowType> = {
-  sortChange({ sortList }) {
+  sortChange() {
     // sortParams.value = sortList.map(({ field, order }) => ({
     //   field,
     //   order: order?.toLowerCase() || OrderType.ASC, // ASC => asc
     // }));
     extendedApi.query();
-  }
-}
+  },
+};
 const [Grid, extendedApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
@@ -202,19 +232,19 @@ const toggleOpened = (row: RowType) => {
   opened.value = !opened.value;
   currentUUID.value = row?.uuid;
   mode.value = 'edit';
-}
+};
 const createNewOriginLink = () => {
   opened.value = true;
   currentUUID.value = null;
   mode.value = 'new';
-}
+};
 const detailOriginalLink = async (row: RowType) => {
   opened.value = true;
   currentUUID.value = row?.uuid;
   mode.value = 'detail';
-}
-const mode = ref<'edit' | "new" | "detail">('new');
-const currentUUID = ref<string | undefined | null>('');
+};
+const mode = ref<'detail' | 'edit' | 'new'>('new');
+const currentUUID = ref<null | string | undefined>('');
 
 const showUndoDeleteNotigication = (uuid: string) => {
   const key = `delete_${uuid}`;
@@ -230,7 +260,7 @@ const showUndoDeleteNotigication = (uuid: string) => {
         extendedApi.reload();
       },
     },
-    '撤销'
+    '撤销',
   );
 
   notification.open({
@@ -263,14 +293,19 @@ const deleteOriginalLinkHandle = async (row: RowType) => {
       }
     },
   });
-}
+};
 </script>
 
 <template>
   <Page auto-content-height>
     <Grid>
       <template #toolbar-tools>
-        <Button class="mr-2" type="primary" shape="circle" @click="createNewOriginLink">
+        <Button
+          class="mr-2"
+          type="primary"
+          shape="circle"
+          @click="createNewOriginLink"
+        >
           <template #icon>
             <span class="icon-[mdi--plus]"></span>
           </template>
@@ -283,11 +318,35 @@ const deleteOriginalLinkHandle = async (row: RowType) => {
         </Button> -->
       </template>
       <template #action="{ row }">
-        <Button @click="detailOriginalLink(row)" type="link" :disabled="!!row.deleted">详情</Button>
-        <Button v-if="!row.deleted" @click="toggleOpened(row)" type="link" :disabled="!!row.deleted">编辑</Button>
-        <Button v-if="!row.deleted" @click="deleteOriginalLinkHandle(row)" type="link">删除</Button>
+        <Button
+          @click="detailOriginalLink(row)"
+          type="link"
+          :disabled="!!row.deleted"
+        >
+          详情
+        </Button>
+        <Button
+          v-if="!row.deleted"
+          @click="toggleOpened(row)"
+          type="link"
+          :disabled="!!row.deleted"
+        >
+          编辑
+        </Button>
+        <Button
+          v-if="!row.deleted"
+          @click="deleteOriginalLinkHandle(row)"
+          type="link"
+        >
+          删除
+        </Button>
       </template>
     </Grid>
-    <OriginalLinkDetail v-model:opened="opened" :mode="mode" :uuid="currentUUID" @refresh-list="extendedApi.reload" />
+    <OriginalLinkDetail
+      v-model:opened="opened"
+      :mode="mode"
+      :uuid="currentUUID"
+      @refresh-list="extendedApi.reload"
+    />
   </Page>
 </template>

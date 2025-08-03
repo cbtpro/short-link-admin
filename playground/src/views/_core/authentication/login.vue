@@ -123,5 +123,10 @@ async function onSubmit(params: Recordable<any>) {
 </script>
 
 <template>
-  <AuthenticationLogin ref="loginRef" :form-schema="formSchema" :loading="authStore.loginLoading" @submit="onSubmit" />
+  <AuthenticationLogin
+    ref="loginRef"
+    :form-schema="formSchema"
+    :loading="authStore.loginLoading"
+    @submit="onSubmit"
+  />
 </template>

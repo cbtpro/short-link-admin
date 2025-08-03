@@ -6,8 +6,13 @@ import { setupVbenVxeTable, useVbenVxeGrid } from '@vben/plugins/vxe-table';
 
 import { Button, Image } from 'ant-design-vue';
 
+import {
+  DeletedStatus,
+  getDeletedStatusLabel,
+  getEnabledStatusLabel,
+} from '#/common/constants';
+
 import { useVbenForm } from './form';
-import { DeletedStatus, getDeletedStatusLabel, getEnabledStatusLabel } from '#/common/constants';
 
 setupVbenVxeTable({
   configVxeTable: (vxeUI) => {
@@ -61,7 +66,6 @@ setupVbenVxeTable({
 
     // 这里可以自行扩展 vxe-table 的全局配置，比如自定义格式化
     // vxeUI.formats.add
-    
 
     vxeUI.renderer.add('enabledRender', {
       renderDefault(_renderOpts, params) {
@@ -73,7 +77,9 @@ setupVbenVxeTable({
     vxeUI.renderer.add('deletedRender', {
       renderDefault(_renderOpts, params) {
         const { row } = params;
-        return getDeletedStatusLabel(row.deleted ?? DeletedStatus.NotDeleted) ?? '-';
+        return (
+          getDeletedStatusLabel(row.deleted ?? DeletedStatus.NotDeleted) ?? '-'
+        );
       },
     });
   },

@@ -14,6 +14,5 @@ export const overridesPreferences = defineOverridesPreferences({
      */
     enableRefreshToken: true,
     loginExpiredMode: 'page',
-
   },
 });

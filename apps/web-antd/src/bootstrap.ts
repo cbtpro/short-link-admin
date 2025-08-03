@@ -9,9 +9,8 @@ import '@vben/styles/antd';
 
 import { useTitle } from '@vueuse/core';
 
-import { initDeviceFingerprint } from '#/utils';
-
 import { $t, setupI18n } from '#/locales';
+import { initDeviceFingerprint } from '#/utils';
 
 import { initComponentAdapter } from './adapter/component';
 import { initSetupVbenForm } from './adapter/form';

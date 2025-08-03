@@ -1,26 +1,33 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
-import { useVbenForm } from '#/adapter/form';
+
 import { useVbenDrawer, z } from '@vben/common-ui';
-import { createOriginalLink, queryOriginalLink, updateOriginalLink } from '#/api';
-import { EnabledStatus } from '#/common/constants';
+
 import { message } from 'ant-design-vue';
+
+import { useVbenForm } from '#/adapter/form';
+import {
+  createOriginalLink,
+  queryOriginalLink,
+  updateOriginalLink,
+} from '#/api';
+import { EnabledStatus } from '#/common/constants';
 
 interface IProps {
   opened?: boolean;
   /**
    * 编辑时的唯一标识
    */
-  uuid?: string | null;
+  uuid?: null | string;
   /**
    * 操作模式，新增或编辑
    */
-  mode?: 'new' | 'edit' | 'detail';
+  mode?: 'detail' | 'edit' | 'new';
 }
 
 defineOptions({
-  name: 'OriginalLinkDetail'
-})
+  name: 'OriginalLinkDetail',
+});
 
 const props = withDefaults(defineProps<IProps>(), {
   opened: false,
@@ -29,29 +36,33 @@ const props = withDefaults(defineProps<IProps>(), {
 });
 
 const emits = defineEmits<{
+  refreshList: [];
   'update:opened': [value: boolean];
-  'refresh-list': [];
 }>();
 
 const title = computed(() => {
-  const { mode } = props
+  const { mode } = props;
   let _title = '';
   switch (mode) {
-    default:
-      _title = '新增链接';
-      break;
-    case 'detail':
+    case 'detail': {
       _title = '链接详情';
       break;
-    case 'edit':
+    }
+    case 'edit': {
       _title = '编辑链接';
       break;
-    case 'new':
+    }
+    case 'new': {
       _title = '新增链接';
       break;
+    }
+    default: {
+      _title = '新增链接';
+      break;
+    }
   }
   return _title;
-})
+});
 
 const [Drawer, drawerApi] = useVbenDrawer({
   showConfirmButton: false,
@@ -74,15 +85,17 @@ const isOpen = computed({
 });
 
 // 同步 drawerApi 状态变化到 isOpen，避免外部状态不同步
-watch(() => props.opened, (val) => {
-  if (val) drawerApi.open();
-  else drawerApi.close();
-});
+watch(
+  () => props.opened,
+  (val) => {
+    if (val) drawerApi.open();
+    else drawerApi.close();
+  },
+);
 
 const openHandle = () => {
   emits('update:opened', true);
-}
-
+};
 
 const data = ref<IOriginalLink>({
   uuid: '',
@@ -114,9 +127,7 @@ defineExpose({
   openHandle,
 });
 
-
 const [BaseForm, formInstance] = useVbenForm({
-
   // 所有表单项共用，可单独在表单内覆盖
   commonConfig: {
     // 所有表单项
@@ -176,7 +187,7 @@ async function onSubmit(values: IOriginalLink) {
       message.success('修改成功');
     }
     // 触发父组件事件，告诉它刷新列表
-    emits('refresh-list');
+    emits('refreshList');
   } catch (error: any) {
     message.error(error);
   } finally {
@@ -192,16 +203,18 @@ watch(
     if (opened) {
       if (mode === 'new') {
         resetData();
-      } else if (['edit', 'detail'].includes(mode as string) && typeof uuid === 'string') {
+      } else if (
+        ['detail', 'edit'].includes(mode as string) &&
+        typeof uuid === 'string'
+      ) {
         fetchData(uuid);
       }
     } else {
       resetData();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
-
 </script>
 
 <template>
@@ -210,11 +223,16 @@ watch(
     <Drawer v-model:opened="isOpen" class="w-[600px]" :title="title">
       <template v-if="loading">加载中...</template>
       <template v-else>
-        <BaseForm v-loading="updateDataLoading" v-model:value="data" :resetButtonOptions="{
-          loading: loading
-        }" :submitButtonOptions="{
-          loading: loading,
-        }" />
+        <BaseForm
+          v-loading="updateDataLoading"
+          v-model:value="data"
+          :reset-button-options="{
+            loading,
+          }"
+          :submit-button-options="{
+            loading,
+          }"
+        />
       </template>
     </Drawer>
   </div>

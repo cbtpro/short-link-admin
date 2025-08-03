@@ -14,10 +14,10 @@ export namespace AuthApi {
   /**
    * 注册接口返回值
    */
-  export interface RegisterResult {
+  export interface RegisterResult<T> {
     success: boolean;
     message: string;
-    data: {};
+    data: T;
   }
   /** 登录接口参数 */
   export interface LoginParams {
@@ -40,7 +40,10 @@ export namespace AuthApi {
  * 注册新用户
  */
 export async function registerApi(data: AuthApi.RegisterParams) {
-  return requestClient.post<AuthApi.RegisterResult>('/auth/register', data);
+  return requestClient.post<AuthApi.RegisterResult<IUser>>(
+    '/auth/register',
+    data,
+  );
 }
 
 /**

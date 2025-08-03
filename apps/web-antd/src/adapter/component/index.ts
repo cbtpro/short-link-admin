@@ -15,6 +15,8 @@ import { $t } from '@vben/locales';
 
 import { notification } from 'ant-design-vue';
 
+import JsonEditor from '#/components/form/json-editor.vue';
+
 const AutoComplete = defineAsyncComponent(
   () => import('ant-design-vue/es/auto-complete'),
 );
@@ -123,9 +125,6 @@ export type ComponentType =
   | 'TreeSelect'
   | 'Upload'
   | BaseFormComponentType;
-
-import JsonEditor from '#/components/form/json-editor.vue';
-// import AsyncSelect from '#/components/form/async-select.vue';
 
 async function initComponentAdapter() {
   const components: Partial<Record<ComponentType, Component>> = {

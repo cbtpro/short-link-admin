@@ -1,26 +1,34 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
-import { useVbenForm } from '#/adapter/form';
+
 import { useVbenDrawer, z } from '@vben/common-ui';
-import { createSafeShortLink, queryOriginalLinkOptions, querySafeShortLink, updateSafeShortLink } from '#/api';
-import { EnabledStatus } from '#/common/constants';
+
 import { message } from 'ant-design-vue';
+
+import { useVbenForm } from '#/adapter/form';
+import {
+  createSafeShortLink,
+  queryOriginalLinkOptions,
+  querySafeShortLink,
+  updateSafeShortLink,
+} from '#/api';
+import { EnabledStatus } from '#/common/constants';
 
 interface IProps {
   opened?: boolean;
   /**
    * 编辑时的唯一标识
    */
-  uuid?: string | null;
+  uuid?: null | string;
   /**
    * 操作模式，新增或编辑
    */
-  mode?: 'new' | 'edit' | 'detail';
+  mode?: 'detail' | 'edit' | 'new';
 }
 
 defineOptions({
-  name: 'OriginalLinkDetail'
-})
+  name: 'OriginalLinkDetail',
+});
 
 const props = withDefaults(defineProps<IProps>(), {
   opened: false,
@@ -29,29 +37,33 @@ const props = withDefaults(defineProps<IProps>(), {
 });
 
 const emits = defineEmits<{
+  refreshList: [];
   'update:opened': [value: boolean];
-  'refresh-list': [];
 }>();
 
 const title = computed(() => {
-  const { mode } = props
+  const { mode } = props;
   let _title = '';
   switch (mode) {
-    default:
-      _title = '新增安全短链接';
-      break;
-    case 'detail':
+    case 'detail': {
       _title = '安全短链接详情';
       break;
-    case 'edit':
+    }
+    case 'edit': {
       _title = '编辑安全短链接';
       break;
-    case 'new':
+    }
+    case 'new': {
       _title = '新增安全短链接';
       break;
+    }
+    default: {
+      _title = '新增安全短链接';
+      break;
+    }
   }
   return _title;
-})
+});
 
 const [Drawer, drawerApi] = useVbenDrawer({
   showConfirmButton: false,
@@ -74,15 +86,17 @@ const isOpen = computed({
 });
 
 // 同步 drawerApi 状态变化到 isOpen，避免外部状态不同步
-watch(() => props.opened, (val) => {
-  if (val) drawerApi.open();
-  else drawerApi.close();
-});
+watch(
+  () => props.opened,
+  (val) => {
+    if (val) drawerApi.open();
+    else drawerApi.close();
+  },
+);
 
 const openHandle = () => {
   emits('update:opened', true);
-}
-
+};
 
 const data = ref<ISafeShortLink>({
   uuid: '',
@@ -116,9 +130,7 @@ defineExpose({
   openHandle,
 });
 
-
 const [BaseForm, formInstance] = useVbenForm({
-
   // 所有表单项共用，可单独在表单内覆盖
   commonConfig: {
     // 所有表单项
@@ -140,15 +152,15 @@ const [BaseForm, formInstance] = useVbenForm({
       componentProps: {
         api: queryOriginalLinkOptions,
         onSearch: (searchValue: string) => {
-          // 获取组件实例并触发搜索  
-          const apiSelectRef = formInstance.getFieldComponentRef('originalLinkId');
+          // 获取组件实例并触发搜索
+          const apiSelectRef =
+            formInstance.getFieldComponentRef('originalLinkId');
           apiSelectRef?.updateParam({
             keyword: searchValue,
-            page: 1
+            page: 1,
           });
         },
-        params: {
-        },
+        params: {},
         showSearch: true,
         filterOption: false,
         placeholder: '请选择链接',
@@ -172,9 +184,7 @@ const [BaseForm, formInstance] = useVbenForm({
       fieldName: 'originalLinkId',
       // 界面显示的label
       label: '链接',
-      rules: z
-        .string({ required_error: '请选择链接' })
-        .nonempty('请选择链接'),
+      rules: z.string({ required_error: '请选择链接' }).nonempty('请选择链接'),
     },
     {
       component: 'Input',
@@ -189,10 +199,9 @@ const [BaseForm, formInstance] = useVbenForm({
       rules: z
         .string()
         .optional()
-        .refine(
-          (val) => !val || (val.length >= 1 && val.length <= 200),
-          { message: '自定义代码长度必须在 1 到 200 个字符之间' }
-        ),
+        .refine((val) => !val || (val.length > 0 && val.length <= 200), {
+          message: '自定义代码长度必须在 1 到 200 个字符之间',
+        }),
     },
     {
       component: 'JsonEditor',
@@ -211,15 +220,15 @@ const [BaseForm, formInstance] = useVbenForm({
         .refine(
           (val) => {
             if (!val) return true; // 可选，空值通过
-            if (val.length < 1 || val.length > 200) return false;
+            if (val.length === 0 || val.length > 200) return false;
             try {
               JSON.parse(val); // 验证是否是合法 JSON
               return true;
-            } catch (e) {
+            } catch {
               return false;
             }
           },
-          { message: '请输入有效的 JSON 格式，长度为 1～200 个字符' }
+          { message: '请输入有效的 JSON 格式，长度为 1～200 个字符' },
         ),
     },
     {
@@ -235,10 +244,9 @@ const [BaseForm, formInstance] = useVbenForm({
       rules: z
         .string()
         .optional()
-        .refine(
-          (val) => !val || (val.length >= 1 && val.length <= 200),
-          { message: '访问密码长度必须在 1 到 200 个字符之间' }
-        ),
+        .refine((val) => !val || (val.length > 0 && val.length <= 200), {
+          message: '访问密码长度必须在 1 到 200 个字符之间',
+        }),
     },
     {
       component: 'TimePicker',
@@ -339,20 +347,20 @@ watch(isDetailMode, (isDisabled) => {
   formInstance?.setState({ commonConfig: { disabled: isDisabled } });
 });
 const updateDataLoading = ref(false);
-async function onSubmit(values: ISafeShortLink) {
+async function onSubmit(values: Record<string, any>) {
   try {
     updateDataLoading.value = true;
     const uuid = props.uuid;
     if (props.mode === 'new') {
-      await createSafeShortLink(values);
+      await createSafeShortLink(values as ISafeShortLink);
       message.success('新增成功');
       resetData();
     } else if (uuid) {
-      await updateSafeShortLink(uuid, values);
+      await updateSafeShortLink(uuid, values as ISafeShortLink);
       message.success('修改成功');
     }
     // 触发父组件事件，告诉它刷新列表
-    emits('refresh-list');
+    emits('refreshList');
   } catch (error: any) {
     message.error(error);
   } finally {
@@ -368,16 +376,18 @@ watch(
     if (opened) {
       if (mode === 'new') {
         resetData();
-      } else if (['edit', 'detail'].includes(mode as string) && typeof uuid === 'string') {
+      } else if (
+        ['detail', 'edit'].includes(mode as string) &&
+        typeof uuid === 'string'
+      ) {
         fetchData(uuid);
       }
     } else {
       resetData();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
-
 </script>
 
 <template>
@@ -386,11 +396,16 @@ watch(
     <Drawer v-model:opened="isOpen" class="w-[600px]" :title="title">
       <template v-if="loading">加载中...</template>
       <template v-else>
-        <BaseForm v-loading="updateDataLoading" v-model:value="data" :resetButtonOptions="{
-          loading: loading
-        }" :submitButtonOptions="{
-          loading: loading,
-        }" />
+        <BaseForm
+          v-loading="updateDataLoading"
+          v-model:value="data"
+          :reset-button-options="{
+            loading,
+          }"
+          :submit-button-options="{
+            loading,
+          }"
+        />
       </template>
     </Drawer>
   </div>

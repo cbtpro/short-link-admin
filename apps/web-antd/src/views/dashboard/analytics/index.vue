@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref, type Ref } from 'vue';
 import type { AnalysisOverviewItem } from '@vben/common-ui';
 import type { TabOption } from '@vben/types';
-import { countAllUser } from '#/api';
+
+import { computed, onMounted, ref } from 'vue';
 
 import {
   AnalysisChartCard,
@@ -15,6 +15,8 @@ import {
   SvgCardIcon,
   SvgDownloadIcon,
 } from '@vben/icons';
+
+import { countAllUser } from '#/api';
 
 import AnalyticsTrends from './analytics-trends.vue';
 import AnalyticsVisitsData from './analytics-visits-data.vue';
@@ -29,8 +31,8 @@ onMounted(async () => {
   try {
     const count = await countAllUser();
     userCount.value = count;
-  } catch (err) {
-    console.error('获取用户总数失败:', err);
+  } catch (error) {
+    console.error('获取用户总数失败:', error);
   }
 });
 

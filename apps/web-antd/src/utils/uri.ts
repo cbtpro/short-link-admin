@@ -1,7 +1,7 @@
 /**
  * 解析给定 URL 中的查询参数，并返回一个包含所有参数的对象。
  * 如果某个参数值为 NaN、undefined 或 null，会输出警告信息，但仍然会将其包含在返回对象中。
- * 
+ *
  * @param {string} url - 要解析的 URL 字符串。
  * @returns {Record<string, string | string[]>} - 包含解析后的查询参数的对象。
  */
@@ -31,13 +31,13 @@ export function getQueryParams(url: string): Record<string, string | string[]> {
             queryParams[key] = parsedArray;
             continue;
           }
-        } catch (e) {
+        } catch {
           // 不是合法 JSON，按普通字符串处理
         }
       }
       // 尝试解析逗号分隔的字符串（如 `value1,value2`）
       if (singleValue.includes(',')) {
-        queryParams[key] = singleValue.split(',').map(v => v.trim());
+        queryParams[key] = singleValue.split(',').map((v) => v.trim());
         continue;
       }
       // 普通字符串
@@ -50,7 +50,11 @@ export function getQueryParams(url: string): Record<string, string | string[]> {
     // 检查异常值（NaN/undefined/null）
     if (typeof queryParams[key] === 'string') {
       const strValue = queryParams[key] as string;
-      if (strValue === 'NaN' || strValue === 'undefined' || strValue === 'null') {
+      if (
+        strValue === 'NaN' ||
+        strValue === 'undefined' ||
+        strValue === 'null'
+      ) {
         console.warn(`警告: 参数 ${key} 的值为异常值 (${strValue})`);
       }
     }
@@ -69,7 +73,10 @@ export function getQueryParams(url: string): Record<string, string | string[]> {
  * @param {Record<string, any>} params - 要拼接的参数对象。
  * @returns {string} - 拼接参数后的完整 URL 字符串。
  */
-export function setQueryParams(baseUrl: string, params: Record<string, any>): string {
+export function setQueryParams(
+  baseUrl: string,
+  params: Record<string, any>,
+): string {
   const urlObj = new URL(baseUrl);
   const urlParams = new URLSearchParams(urlObj.search);
 
@@ -77,10 +84,10 @@ export function setQueryParams(baseUrl: string, params: Record<string, any>): st
     let finalValue: string;
 
     if (Array.isArray(value)) {
-      finalValue = value.map(v => String(v)).join(',');
+      finalValue = value.map(String).join(',');
     } else if (
       value === null ||
-      typeof value === 'undefined' ||
+      value === undefined ||
       (typeof value === 'number' && Number.isNaN(value))
     ) {
       finalValue = String(value);

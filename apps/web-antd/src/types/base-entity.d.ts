@@ -30,5 +30,5 @@ interface IBaseEntity {
   /**
    * 删除状态
    */
-  deleted?: number | null;
+  deleted?: null | number;
 }

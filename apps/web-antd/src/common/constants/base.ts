@@ -1,4 +1,4 @@
-import { createEnumHelper } from "#/utils";
+import { createEnumHelper } from '#/utils';
 
 /**
  * 启用状态
@@ -31,13 +31,13 @@ export const {
  */
 export enum DeletedStatus {
   /**
-   * 未删除
-   */
-  NotDeleted = 0,
-  /**
    * 已删除
    */
   Deleted = 1,
+  /**
+   * 未删除
+   */
+  NotDeleted = 0,
 }
 
 const DELETED_STATUS_SOURCE = [
@@ -51,3 +51,8 @@ export const {
   map: DELETED_STATUS_MAP,
   getLabel: getDeletedStatusLabel,
 } = createEnumHelper(DELETED_STATUS_SOURCE, { includeAll: false });
+
+export enum OrderType {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}

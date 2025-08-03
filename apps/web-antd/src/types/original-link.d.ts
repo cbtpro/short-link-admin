@@ -1,6 +1,6 @@
 type IOriginalLink = IBaseEntity & {
-  uuid?: string;
+  deleted?: boolean | number;
+  enabled?: boolean | number;
   originalUrl: string;
-  enabled?: number | boolean;
-  deleted?: number | boolean;
-}
+  uuid?: string;
+};

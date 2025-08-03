@@ -1,25 +1,20 @@
-<template>
-  <div>
-    <div
-      v-if="!isEditing"
-      class="mini-mode"
-      @click="isEditing = true"
-      :title="displayText"
-    >
-      {{ displayText }}
-    </div>
-    <div v-else ref="container" class="editor-mode"></div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue';
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue';
+
 import JSONEditor from 'jsoneditor';
+
 import 'jsoneditor/dist/jsoneditor.css';
 
 const props = defineProps<{
+  mode?: 'code' | 'text' | 'tree';
   value?: string;
-  mode?: 'code' | 'tree' | 'text';
 }>();
 const emit = defineEmits(['update:value']);
 
@@ -67,7 +62,6 @@ function createEditor() {
   });
 }
 
-
 function destroyEditor() {
   editor?.destroy();
   editor = null;
@@ -107,18 +101,32 @@ onBeforeUnmount(() => {
 });
 </script>
 
+<template>
+  <div>
+    <div
+      v-if="!isEditing"
+      class="mini-mode"
+      @click="isEditing = true"
+      :title="displayText"
+    >
+      {{ displayText }}
+    </div>
+    <div v-else ref="container" class="editor-mode"></div>
+  </div>
+</template>
+
 <style scoped>
 .mini-mode {
   height: 40px;
+  padding: 6px 10px;
   overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
+  font-family: monospace;
+  white-space: nowrap;
+  cursor: pointer;
+  background-color: #fafafa;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
-  padding: 6px 10px;
-  font-family: monospace;
-  background-color: #fafafa;
-  cursor: pointer;
 }
 
 .editor-mode {

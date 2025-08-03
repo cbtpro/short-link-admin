@@ -5,9 +5,9 @@ interface PageFetchParams {
 }
 
 interface IResponseBody<T> {
-  data: T
+  data: T;
 }
 interface IResponseBodyByPagination<T> {
-  items: T[],
-  total: number,
+  items: T[];
+  total: number;
 }
